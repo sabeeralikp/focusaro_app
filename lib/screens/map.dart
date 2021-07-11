@@ -10,6 +10,11 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flash_chat/services/location_services.dart';
 import 'package:provider/provider.dart';
 
+import 'dart:io';
+import 'package:sound_mode/permission_handler.dart';
+import 'package:sound_mode/sound_mode.dart';
+import 'package:sound_mode/utils/sound_profiles.dart';
+
 String _mapStyle;
 LocationData location;
 Future<UserLocation> currentLocation;
@@ -24,12 +29,55 @@ class MyMap extends StatefulWidget {
 }
 
 class _MyMapState extends State<MyMap> {
+  String _soundMode = 'Unknown';
+  String _permissionStatus;
   @override
   void initState() {
     super.initState();
+    getCurrentSoundMode();
+    getPermissionStatus();
 
     rootBundle.loadString('assets/mapstyle.txt').then((string) {
       _mapStyle = string;
+    });
+  }
+
+  Future<void> getCurrentSoundMode() async {
+    String ringerStatus;
+    try {
+      ringerStatus = await SoundMode.ringerModeStatus;
+      if (Platform.isIOS) {
+        //because i no push meesage form ios to flutter,so need read two times
+        await Future.delayed(Duration(milliseconds: 1000), () async {
+          ringerStatus = await SoundMode.ringerModeStatus;
+        });
+      }
+    } catch (err) {
+      ringerStatus = 'Failed to get device\'s ringer status.$err';
+    }
+
+    // If the widget was removed from the tree while the asynchronous platform
+    // message was in flight, we want to discard the reply rather than calling
+    // setState to update our non-existent appearance.
+    if (!mounted) return;
+
+    setState(() {
+      _soundMode = ringerStatus;
+    });
+  }
+
+  Future<void> getPermissionStatus() async {
+    bool permissionStatus = false;
+    try {
+      permissionStatus = await PermissionHandler.permissionsGranted;
+      print(permissionStatus);
+    } catch (err) {
+      print(err);
+    }
+
+    setState(() {
+      _permissionStatus =
+          permissionStatus ? "Permissions Enabled" : "Permissions not granted";
     });
   }
 
@@ -199,15 +247,35 @@ class _MyMapState extends State<MyMap> {
             ),
           ],
         ),
-        body: GoogleMap(
-          mapType: MapType.normal,
-          initialCameraPosition: initialLocation,
-          markers: Set.of((marker != null) ? [marker] : []),
-          circles: Set.of((circle != null) ? [circle] : []),
-          onMapCreated: (GoogleMapController controller) {
-            _controller = controller;
-            controller.setMapStyle(_mapStyle);
-          },
+        body: ListView(
+          children: [
+            ElevatedButton(
+              onPressed: () => setNormalMode(),
+              child: Text('Set Normal mode'),
+            ),
+            ElevatedButton(
+              onPressed: () => setSilentMode(),
+              child: Text('Set Silent mode'),
+            ),
+            ElevatedButton(
+              onPressed: () => setVibrateMode(),
+              child: Text('Set Vibrate mode'),
+            ),
+            ElevatedButton(
+              onPressed: () => openDoNotDisturbSettings(),
+              child: Text('Open Do Not Access Settings'),
+            ),
+            // GoogleMap(
+            //   mapType: MapType.normal,
+            //   initialCameraPosition: initialLocation,
+            //   markers: Set.of((marker != null) ? [marker] : []),
+            //   circles: Set.of((circle != null) ? [circle] : []),
+            //   onMapCreated: (GoogleMapController controller) {
+            //     _controller = controller;
+            //     controller.setMapStyle(_mapStyle);
+            //   },
+            // ),
+          ],
         ),
         floatingActionButton: FloatingActionButton(
             child: Icon(Icons.location_searching),
@@ -216,5 +284,50 @@ class _MyMapState extends State<MyMap> {
             }),
       ),
     );
+  }
+
+  Future<void> setSilentMode() async {
+    String message;
+
+    try {
+      message = await SoundMode.setSoundMode(Profiles.SILENT);
+
+      setState(() {
+        _soundMode = message;
+      });
+    } on PlatformException {
+      print('Do Not Disturb access permissions required!');
+    }
+  }
+
+  Future<void> setNormalMode() async {
+    String message;
+
+    try {
+      message = await SoundMode.setSoundMode(Profiles.NORMAL);
+      setState(() {
+        _soundMode = message;
+      });
+    } on PlatformException {
+      print('Do Not Disturb access permissions required!');
+    }
+  }
+
+  Future<void> setVibrateMode() async {
+    String message;
+
+    try {
+      message = await SoundMode.setSoundMode(Profiles.VIBRATE);
+
+      setState(() {
+        _soundMode = message;
+      });
+    } on PlatformException {
+      print('Do Not Disturb access permissions required!');
+    }
+  }
+
+  Future<void> openDoNotDisturbSettings() async {
+    await PermissionHandler.openDoNotDisturbSetting();
   }
 }

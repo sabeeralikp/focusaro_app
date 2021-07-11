@@ -8,7 +8,8 @@ import 'screens/sample.dart';
 import 'screens/chat2.dart';
 import 'screens/messagescreen.dart';
 import 'screens/map.dart';
-import 'services/sound_services.dart';
+// import 'services/sound_services.dart';
+import 'Sound/sound.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -43,7 +44,7 @@ class _FlashChatState extends State<FlashChat> {
         MyHomePage.id: (context) => MyHomePage(),
         Accounts.id: (context) => Accounts(),
         MyMap.id: (context) => MyMap(),
-        Sound.id: (context) => Sound(),
+        // Sound.id: (context) => Sound(),
       },
     );
   }

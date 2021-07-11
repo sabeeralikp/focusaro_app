@@ -23,6 +23,7 @@ dependencies:
   contacts_service: ^0.3.10
   loading_animations: ^2.0.0
   sound_mode: ^0.2.2
+  
  
 
 dev_dependencies:

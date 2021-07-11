@@ -130,7 +130,6 @@ class _MyHomePageState extends State<MyHomePage> {
           ),
         ),
         key: _scaffoldKey,
-        resizeToAvoidBottomPadding: false,
         body: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
           mainAxisAlignment: MainAxisAlignment.start,
