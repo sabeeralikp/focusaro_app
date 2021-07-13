@@ -9,6 +9,7 @@ import 'map.dart';
 import 'package:flash_chat/services/location_services.dart';
 import 'package:provider/provider.dart';
 import 'dart:math' show cos, sqrt, asin;
+import 'package:flash_chat/services/sounds.dart';
 
 bool focusMode = false;
 
@@ -302,9 +303,11 @@ class _BodyState extends State<Body> {
       if (result < 50) {
         setState(() {
           focusMode = true;
+          setSilentMode();
         });
       } else {
         focusMode = false;
+        setNormalMode();
         FirebaseFirestore.instance.collection('user').doc(id).update({
           'focusLocation': [0, 0],
           'focusMode': false,

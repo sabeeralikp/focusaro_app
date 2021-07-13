@@ -231,6 +231,7 @@ class _MyMapState extends State<MyMap> {
                           'focusMode': true,
                         });
                       });
+                      setSilentMode();
                     } else {
                       FirebaseFirestore.instance
                           .collection('user')
@@ -239,43 +240,34 @@ class _MyMapState extends State<MyMap> {
                         'focusLocation': [0, 0],
                         'focusMode': false,
                       });
+                      setNormalMode();
                     }
                     print(switchValue);
                   });
                 },
               ),
             ),
+            Padding(
+              padding: const EdgeInsets.only(
+                right: 10.0,
+                top: 20.0,
+              ),
+              child: IconButton(
+                onPressed: () => openDoNotDisturbSettings(),
+                icon: Icon(Icons.settings),
+              ),
+            ),
           ],
         ),
-        body: ListView(
-          children: [
-            ElevatedButton(
-              onPressed: () => setNormalMode(),
-              child: Text('Set Normal mode'),
-            ),
-            ElevatedButton(
-              onPressed: () => setSilentMode(),
-              child: Text('Set Silent mode'),
-            ),
-            ElevatedButton(
-              onPressed: () => setVibrateMode(),
-              child: Text('Set Vibrate mode'),
-            ),
-            ElevatedButton(
-              onPressed: () => openDoNotDisturbSettings(),
-              child: Text('Open Do Not Access Settings'),
-            ),
-            // GoogleMap(
-            //   mapType: MapType.normal,
-            //   initialCameraPosition: initialLocation,
-            //   markers: Set.of((marker != null) ? [marker] : []),
-            //   circles: Set.of((circle != null) ? [circle] : []),
-            //   onMapCreated: (GoogleMapController controller) {
-            //     _controller = controller;
-            //     controller.setMapStyle(_mapStyle);
-            //   },
-            // ),
-          ],
+        body: GoogleMap(
+          mapType: MapType.normal,
+          initialCameraPosition: initialLocation,
+          markers: Set.of((marker != null) ? [marker] : []),
+          circles: Set.of((circle != null) ? [circle] : []),
+          onMapCreated: (GoogleMapController controller) {
+            _controller = controller;
+            controller.setMapStyle(_mapStyle);
+          },
         ),
         floatingActionButton: FloatingActionButton(
             child: Icon(Icons.location_searching),
